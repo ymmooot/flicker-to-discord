@@ -1,6 +1,6 @@
 import { env, rss } from "./deps.ts";
 
-const fetchInterval = 5 * 60 * 1000; // 5 minutes
+const fetchInterval = 15 * 60 * 1000; // 15 minutes
 const flickerRSSBaseUrl =
   "https://www.flickr.com/services/feeds/photos_public.gne?lang=en-us&format=rss_200&id=";
 
