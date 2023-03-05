@@ -1,6 +1,8 @@
 import { env, rss } from "./deps.ts";
 
-const fetchInterval = 3000 * 60 * 1000; // 5 minutes
+const fetchInterval = 5 * 60 * 1000; // 5 minutes
+const flickerRSSBaseUrl =
+  "https://www.flickr.com/services/feeds/photos_public.gne?lang=en-us&format=rss_200&id=";
 
 type Env = {
   flickerRSSUrls: string[];
@@ -8,10 +10,12 @@ type Env = {
 };
 
 const loadEnv = (): Env => {
-  const flickr = env.require("FLICKR_RSS_URLS");
+  const flickrIDs = env.require("FLICKR_IDS");
   const discord = env.require("DISCORD_WEBHOOK_URL");
   return {
-    flickerRSSUrls: flickr.split(","),
+    flickerRSSUrls: flickrIDs.split(",").map((id: string) =>
+      flickerRSSBaseUrl + id
+    ),
     discordWebhookUrl: discord,
   };
 };
@@ -30,6 +34,10 @@ const fetchRSS = async (url: string): Promise<[string, string[]]> => {
 };
 
 const sendToDiscord = async (id: string, url: string, imageUrls: string[]) => {
+  if (imageUrls.length === 0) {
+    return;
+  }
+
   const batchSize = 4; // four images per batch
   const batches = Math.ceil(imageUrls.length / batchSize);
 

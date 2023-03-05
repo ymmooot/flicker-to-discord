@@ -1,0 +1,20 @@
+name: main
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+
+env:
+  FLICKR_IDS: ${{ vars.FLICKR_IDS }}
+  DISCORD_WEBHOOK_URL: ${{ vars.DISCORD_WEBHOOK_URL }}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: env
+    steps:
+      - uses: actions/checkout@master
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: v1.x
+      - run: deno run --allow-net --allow-env ./index.ts
