@@ -1,11 +1,11 @@
 import { env, rss } from "./deps.ts";
 
 const fetchInterval = 15 * 60 * 1000; // 15 minutes
-const flickerRSSBaseUrl =
+const flickrRSSBaseUrl =
   "https://www.flickr.com/services/feeds/photos_public.gne?lang=en-us&format=rss_200&id=";
 
 type Env = {
-  flickerRSSUrls: string[];
+  flickrIDs: string[];
   discordWebhookUrl: string;
 };
 
@@ -20,9 +20,7 @@ const loadEnv = (): Env => {
   const flickrIDs = env.require("FLICKR_IDS");
   const discord = env.require("DISCORD_WEBHOOK_URL");
   return {
-    flickerRSSUrls: flickrIDs.split(",").map((id: string) =>
-      flickerRSSBaseUrl + id
-    ),
+    flickrIDs: flickrIDs.split(","),
     discordWebhookUrl: discord,
   };
 };
@@ -70,7 +68,6 @@ const sendToDiscord = async (payload: FlickrPayload, webhookUrl: string) => {
         icon_url: payload.iconUrl,
       },
     }));
-
     const json = {
       username: `Photos by ${payload.userName}`,
       avatar_url:
@@ -85,11 +82,13 @@ const sendToDiscord = async (payload: FlickrPayload, webhookUrl: string) => {
       },
       body: JSON.stringify(json),
     });
+    await new Promise((res) => setTimeout(res, 100));
   }
 };
 
 const e = loadEnv();
-for (const url of e.flickerRSSUrls) {
-  const payload = await fetchRSS(url);
+for (const id of e.flickrIDs) {
+  const rss = flickrRSSBaseUrl + id;
+  const payload = await fetchRSS(rss);
   await sendToDiscord(payload, e.discordWebhookUrl);
 }
