@@ -1,5 +1,5 @@
 ```sh
-deno run --allow-net --allow-env ./index.ts
+deno run --allow-net --allow-env --allow-read --allow-write ./src/index.ts
 ```
 
 # env
