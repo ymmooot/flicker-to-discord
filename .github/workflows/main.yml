@@ -7,6 +7,8 @@ on:
 env:
   FLICKR_IDS: ${{ vars.FLICKR_IDS }}
   DISCORD_WEBHOOK_URL: ${{ vars.DISCORD_WEBHOOK_URL }}
+  UPSTASH_REDIS_REST_URL: ${{ vars.UPSTASH_REDIS_REST_URL }}
+  UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
 jobs:
   run:
@@ -14,13 +16,7 @@ jobs:
     environment: env
     steps:
       - uses: actions/checkout@master
-      - uses: actions/cache@v3
-        with:
-          path: rss-store.json
-          # This ensures that a new cache is created even if a cache hit occurs.
-          key: json-${{ github.run_id }}
-          restore-keys: json-
       - uses: denoland/setup-deno@v1
         with:
           deno-version: v1.x
-      - run: deno run --allow-net --allow-env --allow-read --allow-write ./src/index.ts
+      - run: deno run --allow-net --allow-env ./src/index.ts

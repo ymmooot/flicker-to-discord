@@ -9,19 +9,22 @@ const flickrRSSBaseUrl =
 type Env = {
   flickrIDs: string[];
   discordWebhookUrl: string;
+  redisUrl: string;
+  redisToken: string;
 };
 
 const loadEnv = (): Env => {
   const flickrIDs = env.require("FLICKR_IDS");
-  const discord = env.require("DISCORD_WEBHOOK_URL");
   return {
     flickrIDs: flickrIDs.split(","),
-    discordWebhookUrl: discord,
+    discordWebhookUrl: env.require("DISCORD_WEBHOOK_URL"),
+    redisUrl: env.require("UPSTASH_REDIS_REST_URL"),
+    redisToken: env.require("UPSTASH_REDIS_REST_TOKEN"),
   };
 };
 
 const e = loadEnv();
-const store = await initStore();
+const store = await initStore(e.redisUrl, e.redisToken);
 
 for (const id of e.flickrIDs) {
   const rss = flickrRSSBaseUrl + id;

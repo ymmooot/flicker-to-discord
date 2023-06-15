@@ -1,21 +1,34 @@
+import { Redis } from "./deps.ts";
+
 type FlickrUserID = string;
 type FeedEntryID = string;
-
-const filePath = "./rss-store.json";
-
 type RSSHandled = {
   [key: FlickrUserID]: FeedEntryID;
 };
 
+const key = "rss-handled";
+
 class RSSStore {
   private value: RSSHandled;
+  private redis: Redis;
 
-  constructor(value: RSSHandled) {
-    this.value = value;
+  constructor(url: string, token: string) {
+    this.redis = new Redis({
+      url,
+      token,
+    });
+    this.value = {};
   }
 
   async save() {
-    await Deno.writeTextFile(filePath, JSON.stringify(this.value));
+    await this.redis.set(key, this.value);
+  }
+
+  async load() {
+    const obj = await this.redis.get<RSSHandled>(key);
+    if (obj) {
+      this.value = obj;
+    }
   }
 
   set(id: FlickrUserID, entryID: FeedEntryID) {
@@ -27,13 +40,11 @@ class RSSStore {
   }
 }
 
-export const initStore = async (): Promise<RSSStore> => {
-  const exists = await Deno.stat(filePath).then(() => true).catch(() => false);
-  if (!exists) {
-    await Deno.writeTextFile(filePath, "{}");
-  }
-  const text = exists ? await Deno.readTextFile(filePath) : "{}";
-  const value = JSON.parse(text);
-  const store = new RSSStore(value);
+export const initStore = async (
+  url: string,
+  token: string,
+): Promise<RSSStore> => {
+  const store = new RSSStore(url, token);
+  await store.load();
   return store;
 };
