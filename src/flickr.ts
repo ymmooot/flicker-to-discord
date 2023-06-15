@@ -23,9 +23,9 @@ export const fetchRSS = async (
   const lastHandledIndex = feed.entries.findIndex((e) =>
     e.id === lastHandledID
   );
-  const targetEntries = feed.entries.filter((_, i: number) => {
-    return i < lastHandledIndex;
-  });
+  const targetEntries = lastHandledIndex > -1
+    ? feed.entries.filter((_, i: number) => i < lastHandledIndex)
+    : feed.entries;
   const userName = feed.title.value?.match(/(from (?<user>.*))/)?.groups?.user!;
   const images = targetEntries.flatMap((e) =>
     e["media:content"]!.map((c) => c.url!)

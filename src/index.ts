@@ -31,6 +31,4 @@ for (const id of e.flickrIDs) {
   await sendToDiscord(payload, e.discordWebhookUrl);
 }
 
-console.log(store);
-
 await store.save();
